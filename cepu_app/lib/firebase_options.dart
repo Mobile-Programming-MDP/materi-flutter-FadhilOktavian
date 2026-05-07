@@ -50,23 +50,23 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyABVMqCkAoryjaYWpQjhrzyf6UF_tqPtrk',
-    appId: '1:1076757814194:web:3964b4077df2bb83a222ab',
-    messagingSenderId: '1076757814194',
-    projectId: 'khalbhi-dev',
-    authDomain: 'khalbhi-dev.firebaseapp.com',
-    databaseURL: 'https://khalbhi-dev-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'khalbhi-dev.firebasestorage.app',
-    measurementId: 'G-W8Y1M17NP6',
+    apiKey: 'AIzaSyBHf4iL2K1LKD2W6UwB1Hb1YYGktq9ytDY',
+    appId: '1:439419975672:web:26a4829bbb4ff68c81880d',
+    messagingSenderId: '439419975672',
+    projectId: 'fasum-d2cbc',
+    authDomain: 'fasum-d2cbc.firebaseapp.com',
+    databaseURL: 'https://fasum-d2cbc-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'fasum-d2cbc.firebasestorage.app',
+    measurementId: 'G-5LPQ9J8SVX',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyALbdcTXO-4e8N4-O22YVDypBGFyNycbO4',
-    appId: '1:1076757814194:android:c799cb56a6fd3799a222ab',
-    messagingSenderId: '1076757814194',
-    projectId: 'khalbhi-dev',
-    databaseURL: 'https://khalbhi-dev-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'khalbhi-dev.firebasestorage.app',
+    apiKey: 'AIzaSyB9A9IVlu5RmbX_SwaSgMnmRnMq3jYeqT0',
+    appId: '1:439419975672:android:accf2391f8d3f5f581880d',
+    messagingSenderId: '439419975672',
+    projectId: 'fasum-d2cbc',
+    databaseURL: 'https://fasum-d2cbc-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'fasum-d2cbc.firebasestorage.app',
   );
 
 }

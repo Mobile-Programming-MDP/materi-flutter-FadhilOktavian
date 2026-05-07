@@ -1,66 +1,46 @@
 {
   "project_info": {
-    "project_number": "1076757814194",
-    "firebase_url": "https://khalbhi-dev-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "project_id": "khalbhi-dev",
-    "storage_bucket": "khalbhi-dev.firebasestorage.app"
+    "project_number": "439419975672",
+    "firebase_url": "https://fasum-d2cbc-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "fasum-d2cbc",
+    "storage_bucket": "fasum-d2cbc.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1076757814194:android:c799cb56a6fd3799a222ab",
+        "mobilesdk_app_id": "1:439419975672:android:accf2391f8d3f5f581880d",
         "android_client_info": {
           "package_name": "com.example.cepu_app"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "1076757814194-8cl0sagkfip6dpak26asbkii50ctsuul.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyALbdcTXO-4e8N4-O22YVDypBGFyNycbO4"
+          "current_key": "AIzaSyB9A9IVlu5RmbX_SwaSgMnmRnMq3jYeqT0"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "1076757814194-8cl0sagkfip6dpak26asbkii50ctsuul.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1076757814194:android:66d014bde82482e0a222ab",
+        "mobilesdk_app_id": "1:439419975672:android:afacd13ddab62d3381880d",
         "android_client_info": {
-          "package_name": "com.example.daftar_belanja"
+          "package_name": "com.example.fasum"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "1076757814194-8cl0sagkfip6dpak26asbkii50ctsuul.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyALbdcTXO-4e8N4-O22YVDypBGFyNycbO4"
+          "current_key": "AIzaSyB9A9IVlu5RmbX_SwaSgMnmRnMq3jYeqT0"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "1076757814194-8cl0sagkfip6dpak26asbkii50ctsuul.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

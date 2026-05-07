@@ -22,19 +22,18 @@ class Post {
     this.latitude,
     this.longitude,
     this.userId,
-    this.fullName
+    this.fullName,
   });
 
-  factory Post.fromDocument(DocumentSnapshot doc)
-  {
+  factory Post.fromDocument(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Post(
       id: doc.id,
-      image: doc['image'],
+      image: data['image'],
       description: data['description'],
       category: data['category'],
-      createdAt: data['created_at'] as Timestamp,
-      updatedAt: data['updated_at'] as Timestamp,
+      createdAt: data['created_at'] != null ? data['created_at'] as Timestamp : null,
+      updatedAt: data['updated_at'] != null ? data['updated_at'] as Timestamp : null,
       latitude: data['latitude'],
       longitude: data['longitude'],
       userId: data['user_id'],
