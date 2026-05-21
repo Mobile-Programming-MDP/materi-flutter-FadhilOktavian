@@ -1,264 +1,138 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+
+import 'package:cepu_app/models/post.dart';
+import 'package:cepu_app/screens/map_detail_screen.dart';
+import 'package:cepu_app/services/post_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../models/post.dart';
-import '../util/file_image_helper.dart';
-import 'map_detail_screen.dart';
+import 'package:share_plus/share_plus.dart';
 
 class DetailScreen extends StatelessWidget {
   final Post post;
-
+  
   const DetailScreen({super.key, required this.post});
 
-  Future<void> _openMap(BuildContext context) async {
-    if (post.latitude == null || post.longitude == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Lokasi tidak tersedia.')));
-      return;
-    }
-
-    final url = Uri.parse(
-      'https://www.google.com/maps/search/?api=1&query=${post.latitude},${post.longitude}',
+  Future<void> _deletePost(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Post'),
+        content: const Text('Are you sure you want to delete this post?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false), 
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true), 
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      )
     );
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        throw 'Tidak dapat membuka peta.';
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
-      }
+    if (confirm == true) {
+      await PostService.deletePost(post);
+      if (context.mounted) Navigator.pop(context);
     }
+  }
+
+  void _sharePost() {
+    final text = 
+        '${post.category ?? ''}\n${post.description ?? ''}\nPosted by: ${post.userFullName ?? ''}';
+    SharePlus.instance.share(ShareParams(text: text));
   }
 
   @override
   Widget build(BuildContext context) {
-    final LatLng? postLocation =
-        (post.latitude != null && post.longitude != null)
-        ? LatLng(double.parse(post.latitude!), double.parse(post.longitude!))
-        : null;
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    final isOwner = currentUserId != null && post.userId == currentUserId;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text(
-          "Detail Laporan",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+        title: Text(post.category ?? 'Post Detail'),
         actions: [
           IconButton(
-            onPressed: () {
-              // Action for sharing or bookmarking could go here
-            },
-            icon: const Icon(Icons.share_outlined),
+            onPressed: _sharePost, 
+            icon: const Icon(Icons.share),
+            tooltip: 'Share',
           ),
+          if (isOwner) 
+            IconButton(
+              onPressed: () => _deletePost(context), 
+              icon: const Icon(Icons.delete),
+              tooltip: 'Delete',
+              color: Colors.red,
+            ),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Section
             if (post.image != null && post.image!.isNotEmpty)
-              _buildImage(post.image!)
-            else
-              Container(
-                height: 250,
+              Image.memory(
+                base64Decode(post.image!),
                 width: double.infinity,
-                decoration: BoxDecoration(color: Colors.grey[200]),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.image_not_supported_outlined,
-                      size: 64,
-                      color: Colors.grey[400],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "Gambar tidak tersedia",
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                  ],
+                height: 250,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox(
+                  height: 250,
+                  child: Center(child: Icon(Icons.broken_image, size: 64)),
                 ),
               ),
-
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Category Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      post.category ?? "Umum",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Description
+                  if (post.category != null)
+                    Chip(label: Text(post.category!)),
+                  const SizedBox(height: 8),
                   Text(
-                    post.description ?? "Tidak ada deskripsi.",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      height: 1.6,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    post.description ?? '',
+                    style: const TextStyle(fontSize: 16),
                   ),
-                  const SizedBox(height: 24),
-                  const Divider(),
                   const SizedBox(height: 16),
-
-                  // Map Preview Section
-
-                  // User Info
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.person_outline,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Dilaporkan oleh",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              post.fullName ?? "Anonim",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
+                      const Icon(Icons.person, size: 18, color: Colors.grey),
+                      const SizedBox(width: 4),
+                      Text(
+                        post.userFullName ?? 'Unknown',
+                        style: const TextStyle(color: Colors.grey),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-
-                  // Date Info
-                  if (post.createdAt != null)
+                  if (post.latitude != null && post.longitude != null) ...[
+                    const SizedBox(height: 8),
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.calendar_today_outlined,
-                            color: Colors.green,
-                            size: 20,
-                          ),
+                        const Icon(
+                          Icons.location_on,
+                          size: 18,
+                          color: Colors.grey,
                         ),
-                        const SizedBox(width: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Tanggal Laporan",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              _formatDate(post.createdAt!.toDate()),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
+                        const SizedBox(width: 4),
+                        Text(
+                          '${post.latitude}, ${post.longitude}',
+                          style: const TextStyle(color: Colors.grey),
                         ),
                       ],
                     ),
-
-                  const SizedBox(height: 40),
-
-                  // Action Button
-                  ElevatedButton.icon(
-                    onPressed: () => _openMap(context),
-                    icon: const Icon(Icons.location_on_outlined),
-                    label: const Text("Lihat Lokasi di Google Maps"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 56),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 2,
-                    ),
-                  ),
+                  ],
                   const SizedBox(height: 12),
                   ElevatedButton.icon(
-                    onPressed: () {
+                    onPressed:() {
                       Navigator.push(
-                        context,
+                        context, 
                         MaterialPageRoute(
-                          builder: (context) => MapDetailScreen(post: post),
+                          builder: (_) => MapDetailScreen(post: post), 
                         ),
                       );
-                    },
-                    icon: const Icon(Icons.map_outlined),
-                    label: const Text("Lihat Lokasi (flutter_map)"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 56),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 2,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                    }, 
+                    icon: const Icon(Icons.map),
+                    label: const Text('View on Map'),
+                  )
                 ],
               ),
             ),
@@ -266,52 +140,5 @@ class DetailScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _buildImage(String imagePath) {
-    if (imagePath.startsWith('http')) {
-      return Image.network(
-        imagePath,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: 280,
-      );
-    }
-    try {
-      return Image.memory(
-        base64Decode(imagePath),
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: 280,
-        errorBuilder: (context, error, stackTrace) {
-          // If decoding failed, it might be a file path (on mobile)
-          if (!kIsWeb) {
-            return buildFileImage(imagePath);
-          }
-          return _buildErrorWidget();
-        },
-      );
-    } catch (e) {
-      if (!kIsWeb) {
-        return buildFileImage(imagePath);
-      }
-      return _buildErrorWidget();
-    }
-  }
-
-  Widget _buildErrorWidget() {
-    return Container(
-      height: 280,
-      color: Colors.grey[200],
-      child: const Icon(
-        Icons.broken_image_outlined,
-        size: 64,
-        color: Colors.grey,
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    return "${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}";
   }
 }
